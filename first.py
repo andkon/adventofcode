@@ -13,37 +13,70 @@ What is the solution to your captcha?
 
 split into [a,b], then check if x[1] matches y[0]
 """
-
+import math
 from functools import reduce
 
-def reverse_captcha(numbers):
+def reverse_captcha(numbers, offset):
+	""" String of numbers, where it sums them if it matches the digit at the position indicated by offset """
+
+	# Turn string of numbers into digits
 	st = str(numbers)
 	digits = list(st)
 	for i in range(len(digits)):
 		digits[i] = int(digits[i])
 	print(digits)
 
-	first = digits[0]
-	final = digits[-1]
+	current_position = 0
+	summable_numbers = []
 
-	print(first, " ", final)
+
+	for current_number in digits:
+		# Let's try not checking the last number
+		try:
+			next_number = digits[(current_position+offset) % len(digits)]
+			if current_number == next_number:
+				print("At position %s, the number %s matches the number %s positions ahead" % (current_position, current_number, offset))
+				# add it to summable
+				summable_numbers.append(current_number)
+		except:
+			raise
+
+		current_position+=1
+
+	try:
+		total_sum = reduce(lambda a,x: a+x, summable_numbers)
+		return total_sum
+	except:
+		return 0
+
+def reverse_halfway(numbers):
+	""" Same as above, but instead of setting an offset, it finds the number halfway aroun the list.
+	e.g. a list with 10 items would have an offset of 10/2 = 5 
+	"""
+	# Turn string of numbers into digits
+	st = str(numbers)
+	digits = list(st)
+	for i in range(len(digits)):
+		digits[i] = int(digits[i])
+	print(digits)
 
 	current_position = 0
 	summable_numbers = []
 
+	offset = (len(digits) + 2 // 2) // 2
+	print("List is %s long, so offset is %s" % (len(digits), offset))
+
+
 	for current_number in digits:
+		# Let's try not checking the last number
 		try:
-			last_number = digits[current_position-1]
-			if current_number == last_number:
+			next_number = digits[(current_position+offset) % len(digits)]
+			if current_number == next_number:
+				print("At position %s, the number %s matches the number %s positions ahead" % (current_position, current_number, offset))
 				# add it to summable
 				summable_numbers.append(current_number)
-
-			elif current_position+1 == len(digits):
-				# if the last number is equal to the first number
-				# then add it
-				summable_numbers.append()
 		except:
-			pass
+			raise
 
 		current_position+=1
 
