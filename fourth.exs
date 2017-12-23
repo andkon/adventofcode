@@ -33,20 +33,23 @@ defmodule Passphrase do
 			|> anagram_match
 	end
 
+	def anagram_match([]) do
+		# there's just nothing there
+		false
+	end
+
 	def anagram_match([head | tail]) do
 		# the way in
 		anagram_match(tail, head)
 	end
 
 	def anagram_match([], word) do
-		IO.puts("didn't find anagram")
 		false
 	end
 
 	def anagram_match(word_list, word) do
 		# This takes a single word, and checks if any other words in the list have a perfect anagram
 		if Enum.any?(word_list, fn x-> x==word end) do
-			IO.puts("Found anagram")
 			true
 		else
 			[head | tail] = word_list
@@ -64,7 +67,11 @@ ExUnit.start
 
 defmodule PassTest do
 	use ExUnit.Case, async: true
-	
+
+	setup context do
+		IO.puts "Setting up: #{context.test}"
+		:ok
+	end
 	test "check passphrase test" do
 		assert Passphrase.check_passphrase("aa bb cc dd ee") == true
 		assert Passphrase.check_passphrase("aa bb cc dd aa") == false
@@ -74,15 +81,18 @@ defmodule PassTest do
 		assert Passphrase.check_passphrase_list(state[:puzzle_entry])[:unique] == 337
 	end
 
-	# test "check anagram function" do
-	# 	assert Passphrase.check_for_anagram_words("abcde fghij") == false
-	# 	assert Passphrase.check_for_anagram_words("abcde xyz ecdab") == true
-	# end
-
 	test "check anagram", state do
 		assert Passphrase.check_passphrase_list(state[:anagram_valid])[:anagram] == 3
 		assert Passphrase.check_passphrase_list(state[:anagram_invalid])[:anagram] == 0
+		assert Passphrase.check_passphrase_list(state[:puzzle_entry])[:anagram] == 231
 	end
+
+
+	test "check anagram function" do
+		assert Passphrase.check_for_anagram_words("abcde fghij") == false
+		assert Passphrase.check_for_anagram_words("abcde xyz ecdab") == true
+	end
+
 
 	setup_all do
 		anagram_valid = """
