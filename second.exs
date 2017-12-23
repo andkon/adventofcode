@@ -208,6 +208,6 @@ defmodule AssertionTest do
 		"""
 
 		assert Modulo.modulo_for_spreadsheet(s2) == 9
-		assert Modulo.modulo_for_spreadsheet(state[:spreadsheet]) == 1
+		assert Modulo.modulo_for_spreadsheet(state[:spreadsheet]) == 233
 	end
 end
