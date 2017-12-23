@@ -24,7 +24,8 @@ defmodule Passphrase do
 	end
 
 	defp check_passphrase_list([], acc) do
-		IO.puts(Enum.count(acc))
+		IO.puts("There are #{Enum.count(acc)} good passphrases")
+		Enum.count(acc)
 	end
 
 	def check_passphrase(passphrase) do
@@ -50,7 +51,7 @@ defmodule PassTest do
 	end
 
 	test "check passphrase list accumulator test", state do
-		assert Passphrase.check_passphrase_list(state[:puzzle_entry]) > 1
+		assert Passphrase.check_passphrase_list(state[:puzzle_entry]) == 337
 	end
 
 	setup_all do
