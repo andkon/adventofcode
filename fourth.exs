@@ -8,18 +8,55 @@ defmodule Passphrase do
 		# Sends off for processing
 		# returns a sum of total good ones
 		passphrases = String.split(pl, "\n", trim: true)
-		Enum.count(passphrases, fn(x) -> check_passphrase(x) == true end)
+		unique_word_phrases = Enum.count(passphrases, fn(x) -> check_passphrase(x) == true end)
+		IO.puts("Passphrases: #{unique_word_phrases}")
+		nonanagram_phrases = Enum.count(passphrases, fn(x) -> check_for_anagram_words(x) == false end)
+		IO.puts("Anagrams: #{nonanagram_phrases}")
+		[unique: unique_word_phrases, anagram: nonanagram_phrases]
 	end
 
 	def check_passphrase(passphrase) do
 		# Returns true for valid, false for not
 		passphrase_words = String.split(passphrase, " ", trim: true)
-
 		if length(Enum.uniq(passphrase_words)) == length(passphrase_words) do
 			true
 		else
 			false
 		end
+	end
+
+	def check_for_anagram_words(passphrase) do
+		# Turn passphrase into words
+		passphrase 
+			|> String.split(" ", trim: true) # split the words
+			|> Enum.map(fn x -> word_cleaner(x) end)
+			|> anagram_match
+	end
+
+	def anagram_match([head | tail]) do
+		# the way in
+		anagram_match(tail, head)
+	end
+
+	def anagram_match([], word) do
+		IO.puts("didn't find anagram")
+		false
+	end
+
+	def anagram_match(word_list, word) do
+		# This takes a single word, and checks if any other words in the list have a perfect anagram
+		if Enum.any?(word_list, fn x-> x==word end) do
+			IO.puts("Found anagram")
+			true
+		else
+			[head | tail] = word_list
+			anagram_match(tail, head)
+		end
+	end
+
+
+	def word_cleaner(word) do
+		word |> String.downcase |> String.codepoints |> Enum.sort
 	end
 end
 
@@ -34,10 +71,30 @@ defmodule PassTest do
 	end
 
 	test "check passphrase list accumulator test", state do
-		assert Passphrase.check_passphrase_list(state[:puzzle_entry]) == 337
+		assert Passphrase.check_passphrase_list(state[:puzzle_entry])[:unique] == 337
+	end
+
+	# test "check anagram function" do
+	# 	assert Passphrase.check_for_anagram_words("abcde fghij") == false
+	# 	assert Passphrase.check_for_anagram_words("abcde xyz ecdab") == true
+	# end
+
+	test "check anagram", state do
+		assert Passphrase.check_passphrase_list(state[:anagram_valid])[:anagram] == 3
+		assert Passphrase.check_passphrase_list(state[:anagram_invalid])[:anagram] == 0
 	end
 
 	setup_all do
+		anagram_valid = """
+		abcde fghij
+		a ab abc abd abf abj
+		iiii oiii ooii oooi oooo
+		"""
+		anagram_invalid = """
+		abcde xyz ecdab
+		oiii ioii iioi iiio
+		"""
+
 		valid = """
 		aa bb cc dd ee
 		aa bb cc dd aaa
@@ -559,7 +616,7 @@ defmodule PassTest do
 		cgc jazrp crgnna uvuokl uvuokl uoiwl sknmc sknmc
 		rvbu czwpdit vmlihg spz lfaxxev zslfuto oog dvoksub
 		"""
-		{:ok, [valid1: valid, invalid: invalid, puzzle_entry: puzzle_entry]}
+		{:ok, [valid1: valid, invalid: invalid, puzzle_entry: puzzle_entry, anagram_valid: anagram_valid, anagram_invalid: anagram_invalid]}
 	end
 
 
