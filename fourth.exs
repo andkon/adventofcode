@@ -8,24 +8,7 @@ defmodule Passphrase do
 		# Sends off for processing
 		# returns a sum of total good ones
 		passphrases = String.split(pl, "\n", trim: true)
-		check_passphrase_list(passphrases, [])
-	end
-
-	defp check_passphrase_list([], []) do
-		0
-	end
-
-	defp check_passphrase_list([head | tail], acc) do
-		if check_passphrase(head) == true do
-			check_passphrase_list(tail, acc++[head])		  
-		else
-			check_passphrase_list(tail, acc)
-		end
-	end
-
-	defp check_passphrase_list([], acc) do
-		IO.puts("There are #{Enum.count(acc)} good passphrases")
-		Enum.count(acc)
+		Enum.count(passphrases, fn(x) -> check_passphrase(x) == true end)
 	end
 
 	def check_passphrase(passphrase) do
