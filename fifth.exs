@@ -65,6 +65,8 @@ ExUnit.start
 defmodule JumpTest do
 	use ExUnit.Case, async: true
 
+
+
 	setup context do
 		IO.puts "Setting up: #{context.test}"
 		:ok
@@ -77,7 +79,7 @@ defmodule JumpTest do
 	# test "check puzzle answer", state do
 	# 	assert Jumper.follow_instructions(state[:puzzle]) > 1
 	# end
-
+	@tag timeout: 10000000
 	test "check puzzle answer for star two", state do
 		assert JumperStarTwo.follow_instructions(state[:test]) == 10
 		assert JumperStarTwo.follow_instructions(state[:puzzle]) > 1
