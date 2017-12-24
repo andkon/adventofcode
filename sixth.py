@@ -24,11 +24,17 @@ def cycle_memory(s):
 
 	count = 0
 	results = []
+	seen = None
 	while True:
 		memory = redistribute_highest(memory)
 		count += 1
 		if memory in results:
-			break
+			if seen != False:
+				count = count - results.index(memory) - 1
+				break
+			else:
+				seen = True
+
 		results.append(list(memory))
 
 	print("Final count: %s" % count)
@@ -45,7 +51,7 @@ class MyTest(unittest.TestCase):
 
 	def test_first_star_test(self):
 		# first star
-		self.assertEqual(cycle_memory(self.test),5)
+		self.assertEqual(cycle_memory(self.test),4)
 
 	def test_first_star_puzzle(self):
 		self.assertGreater(cycle_memory(self.puzzle),1)
