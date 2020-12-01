@@ -5,7 +5,8 @@ puzzle_input = (1408, 1335, 1648, 1458, 1627, 1928, 1967, 1827, 1606, 1569, 1893
 
 for num in puzzle_input:
     for num_2 in puzzle_input:
-        if num + num_2 == 2020:
-            print("It's %s and %s" % (num, num_2))
-            factor = num * num_2
-            print(factor)
+        for num_3 in puzzle_input:
+            if num + num_2 + num_3 == 2020:
+                print("It's %s and %s and %s" % (num, num_2, num_3))
+                factor = num * num_2 * num_3
+                print(factor)
