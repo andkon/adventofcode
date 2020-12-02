@@ -19,11 +19,12 @@ def validate(tup):
 
     rule_count, rule_letter = rule.split(" ")
 
-    rule_min, rule_max = [ int(x) for x in rule_count.split("-") ]
+    rule_positions = map(int, rule_count.split("-"))
 
-    count_of_letter = password.count(rule_letter)
+    count_of_letter = filter(lambda x: password[x-1] == rule_letter, rule_positions)
 
-    if rule_min <= count_of_letter <= rule_max:
+    print(count_of_letter)
+    if len(count_of_letter) == 1:
         return 1
     else:
         return 0
