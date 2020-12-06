@@ -40,7 +40,6 @@ with open('5.txt', 'r') as reader:
         column_characters = boarding_pass[7:]
         row = locate(row_characters, r=range(0,128))
         column = locate(column_characters, r=range(0,8))
-        # import pdb; pdb.set_trace()
         seat_ids.append(create_seat_id(row, column))
 
     seat_ids.sort(reverse=True)
