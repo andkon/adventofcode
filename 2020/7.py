@@ -1,5 +1,9 @@
-from anytree import Node, RenderTree
 import re
+from functools import reduce
+
+import sys
+sys.setrecursionlimit(2000)
+
 
 # What makes this work?
 # I just have to read the instructions, and do it.
@@ -40,21 +44,31 @@ def build_dict(rules):
 
     return rule_dict
 
-def get_all_bags(bag, rule_dict):
+def get_unique_bags(bag, rule_dict):
     # gets all bags down the chain
     bags = []
 
     if rule_dict[bag]:
         bags.extend(rule_dict[bag].keys())
         for bag in bags:
-            print(len(bags))
             if rule_dict[bag]:
-                print(bag)
                 internal_bags = rule_dict[bag].keys()
                 for internal_bag in internal_bags:
                     if internal_bag not in bags:
                         bags.append(internal_bag)
     return bags
+
+def count_up_bags(bag, rule_dict, bags=[], bag_count=0):
+    if rule_dict[bag]:
+        for color, quantity in rule_dict[bag].items():
+            bags.extend((color,)*quantity)
+            bag_count += quantity
+            print("Bag count before: %s" % bag_count)
+    if len(bags) > 0:
+        return count_up_bags(bags.pop(0), rule_dict, bags=bags, bag_count=bag_count)
+    else:
+        return bag_count
+
 
 with open('7.txt', 'r') as reader:
     txt = reader.read()
@@ -76,9 +90,12 @@ with open('7.txt', 'r') as reader:
         # but now the hard part: actually checking if any of the contained bags could contain it:
         # recursively make the list of all references
         all_bags = []
-        all_bags.extend(get_all_bags(rule_bag, rule_dict))
+        all_bags.extend(get_unique_bags(rule_bag, rule_dict))
 
         if SHINY_GOLD in all_bags:
             contains_golden_count += 1
             contains_golden_list.append(rule_bag)
-    print("Yay: %s" % contains_golden_count)
+    print("Total bags that can contain a golden bag: %s" % contains_golden_count)
+
+    total_bags = count_up_bags(SHINY_GOLD, rule_dict)
+    print("Total number of bags in %s: %s" % (SHINY_GOLD, total_bags))
