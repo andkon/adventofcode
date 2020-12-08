@@ -12,28 +12,58 @@ with open('8.txt', 'r') as reader:
     txt = txt.strip()
     instructions = txt.split('\n')
 
-    seen_lines = []
+    # loop through each instruction.
+    # swap jmp/nop
+    # try it out
 
-    position = 0
-    acc = 0
+    for i, instruction in enumerate(instructions):
+        instruples = []
+        # make the tuples
+        for x, instruction in enumerate(instructions):
+            instr, value = instructions[x].split(' ')
+            value = int(value)
+            t = (instr, value)
+            instruples.append(t)
 
-    while True:
-        instr, value = instructions[position].split(' ')
-        value = int(value)
-        print("%s: %s %s" % (position, instr, value))
+        print(instruples)
+        row_to_change = instruples[i]
+        if row_to_change[0] == "jmp":
+            instruples[i] = ("nop", value)
+        elif row_to_change[0] == "nop":
+            instruples[i] = ("jmp", value)
+        print(instruples)
 
-        if position in seen_lines:
-            print("Already seen: %s" % position)
+
+        seen_lines = []
+
+        position = 0
+        acc = 0
+        solved = False
+
+        while True:
+            try:
+                instr, value = instruples[position]
+                print("%s: %s %s" % (position, instr, value))
+            except IndexError:
+                print("This nightmare is over! We are free! %s" % acc)
+                solved = True
+                break
+
+            if position in seen_lines:
+                print("Already seen: %s" % position)
+                acc = 0
+                position = 0
+                break
+            else:
+                seen_lines.append(position)
+
+            if instr == "acc":
+                position += 1
+                acc += value
+            elif instr == "jmp":
+                position += value
+            elif instr == "nop":
+                position += 1
+        if solved == True:
+            print("Total is: %s" % acc)
             break
-        else:
-            seen_lines.append(position)
-
-        if instr == "acc":
-            position += 1
-            acc += value
-        elif instr == "jmp":
-            position += value
-        elif instr == "nop":
-            position += 1
-
-    print("Total is: %s" % acc)
