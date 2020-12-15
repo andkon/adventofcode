@@ -30,14 +30,14 @@ def create_seat_id(row, column):
 
 with open('5.txt', 'r') as reader:
     lines = reader.read()
-    boarding_passes = lines.split('\n')
+    bpes = lines.split('\n')
 
     seat_ids = []
 
-    for boarding_pass in boarding_passes:
-        print("Boarding pass: %s" % boarding_pass)
-        row_characters = boarding_pass[:7]
-        column_characters = boarding_pass[7:]
+    for bp in bpes:
+        print("Boarding pass: %s" % bp)
+        row_characters = bp[:7]
+        column_characters = bp[7:]
         row = locate(row_characters, r=range(0,128))
         column = locate(column_characters, r=range(0,8))
         seat_ids.append(create_seat_id(row, column))
