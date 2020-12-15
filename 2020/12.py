@@ -18,19 +18,39 @@ def calculate_distance(beginning, end):
     y = abs(beginning[1]) + abs(end[1])
     return x + y
 
-position = (0,0)
-direction = "E"
+wpos = (10,1)
+spos = (0,0)
+# direction = "E"
 
-def travel_direction(position, direction, distance):
+def move_waypoint(wpos, direction, distance):
     if direction == "N":
-        position = (position[0], position[1] + distance)
+        wpos = (wpos[0], wpos[1] + distance)
     elif direction == "S":
-        position = (position[0], position[1] - distance)
+        wpos = (wpos[0], wpos[1] - distance)
     elif direction == "E":
-        position = (position[0] + distance, position[1])
+        wpos = (wpos[0] + distance, wpos[1])
     elif direction == "W":
-        position = (position[0] - distance, position[1])
-    return position
+        wpos = (wpos[0] - distance, wpos[1])
+    return wpos
+
+def rotate_waypoint(wpos, direction, degrees):
+    rotations = degrees // 90
+
+    index_to_negate = 0
+    if direction == "R":
+        index_to_negate = 1
+
+    i = 0
+
+    while i < rotations:
+        reverse = list(wpos[::-1])
+        reverse[index_to_negate] = reverse[index_to_negate] * -1
+        wpos = tuple(reverse)
+        i += 1
+
+    # print(wpos)
+    return wpos
+
 
 for x in xs:
     instruction = x[:1]
@@ -38,17 +58,27 @@ for x in xs:
 
     # now let's walk through them
     if instruction in RIGHT_DIRECTIONS:
-        position = travel_direction(position, instruction, distance)
+        # move the waypoint
+        wpos = move_waypoint(wpos, instruction, distance)
     elif instruction == "L":
-        # doesn't move, just changes direction
-        current_heading_index = LEFT_DIRECTION.index(direction)
-        new_heading_index = ((distance // 90) + current_heading_index) % len(LEFT_DIRECTION)
-        direction = LEFT_DIRECTION[new_heading_index]
+        # L90 would be
+        # (10, 4) east 10, north 4
+        # (-4, 10) yup, rotate and minus the 1st value
+        wpos = rotate_waypoint(wpos, "L", distance)
     elif instruction == "R":
-        current_heading_index = RIGHT_DIRECTIONS.index(direction)
-        new_heading_index = ((distance // 90) + current_heading_index) % len(RIGHT_DIRECTIONS)
-        direction = RIGHT_DIRECTIONS[new_heading_index]
+        # rotates the waypoint around the ship
+        # R90 would be:
+        # (10, 4) east 10, north 4
+        # (4, -10) east 4, south 10
+        # (-10, -4) west 10, south 4
+        # (-4, 10) west 4, north 10
+        # for each 90, flip, then negate the 2nd value
+        wpos = rotate_waypoint(wpos, "R", distance)
     elif instruction == "F":
-        position = travel_direction(position, direction, distance)
+        # move the ship in the waypoint's orientation * distance
+        wpos_x = wpos[0] * distance
+        wpos_y = wpos[1] * distance
+        spos = (spos[0] + (wpos[0] * distance), spos[1] + (wpos[1] * distance))
+    # print(wpos, spos)
 
-print("Distance: ", calculate_distance((0,0), position))
+print("Distance: ", calculate_distance((0,0), spos))
