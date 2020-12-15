@@ -22,19 +22,52 @@ POSITIONS = (
 # if 4 or more adjacent seats are occupied, it becomes empty.
 rows = [list(x.strip()) for x in list(fileinput.input())]
 
-def get_adjacent_seats(rows, row=0, seat=0):
-    seats = []
+first_seats = {} # key is a (x,y) coordinate, value is a list of tuples of other coordinates
+
+def find_visible_seats(rows, row, seat):
+    visible_seats = []
+
+    # solve the algo here
     for position in POSITIONS:
-        try:
-            r = row + position[0]
-            s = seat + position[1]
-            if (r >= 0) and (s >= 0):
-                new_seat = rows[row + position[0]][seat + position[1]]
-                if new_seat != ".":
-                    seats.append(new_seat)
-        except IndexError:
-            pass
+        # these are the directions it keeps iterating over
+        current_coordinates = (row,seat)
+
+        while True:
+            try:
+                next_row = current_coordinates[0]+position[0]
+                if next_row < 0 or next_row > len(rows):
+                    break
+                next_seat = current_coordinates[1]+position[1]
+                if (next_seat < 0) or (next_seat > len(rows[0])):
+                    break
+                next_coordinates = (next_row, next_seat)
+                next_value = rows[next_coordinates[0]][next_coordinates[1]]
+                if next_value != ".":
+                    visible_seats.append(next_coordinates)
+                    break
+                current_coordinates = next_coordinates
+            except IndexError:
+                break
+    return(visible_seats)
+
+
+
+def check_visible_seats(rows, coordinate_tuple):
+    # returns a boring ol' array of the actual values at the given coordinates
+    seats = []
+    visible_seats = first_seats[coordinate_tuple]
+
+    for position in visible_seats:
+        new_seat = rows[position[0]][position[1]]
+        if new_seat != ".":
+            seats.append(new_seat)
     return seats
+
+
+for (i, row) in enumerate(rows):
+    for (x, seat) in enumerate(row):
+
+        first_seats[(i, x)] = find_visible_seats(rows, row=i, seat=x)
 
 old_rows = copy.deepcopy(rows)
 new_rows = []
@@ -42,7 +75,6 @@ generation = 0
 empty_seats = 0
 occupied_seats = 0
 while old_rows != new_rows:
-
     if len(new_rows) > 0:
         old_rows = new_rows
         empty_seats = 0
@@ -54,11 +86,12 @@ while old_rows != new_rows:
         for (s, seat) in enumerate(row):
             if seat == ".":
                 new_rows[i][s] = "."
-            adjacent_seats = get_adjacent_seats(old_rows, row=i, seat=s)
-            # import pdb; pdb.set_trace()
+
+            visible_seats = check_visible_seats(old_rows, (i, s))
+
             if seat == "L":
                 # check if none of the seats are occupied
-                if "#" not in adjacent_seats:
+                if "#" not in visible_seats:
                     new_rows[i][s] = "#"
                     occupied_seats += 1
                 else:
@@ -66,7 +99,7 @@ while old_rows != new_rows:
                     empty_seats += 1
             elif seat == "#":
                 # currently occupied
-                if adjacent_seats.count("#") >= 4:
+                if visible_seats.count("#") >= 5:
                     new_rows[i][s] = "L"
                     empty_seats += 1
                 else:
