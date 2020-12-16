@@ -1,6 +1,6 @@
 import fileinput
 
-# There is so much that fits in a python file.
+# There is only so much that fits in a python file.
 # I lived for a long time trying to be okay with fitting less and less of myself
 # in a smaller and smaller space.
 # And now that I'm noticing how much has been missing,
@@ -45,3 +45,81 @@ for bus_id in buses:
             print("earliest bus (after): ", bus_id, earliest_wait)
 
 print(earliest_bus*earliest_wait)
+# part 2
+# make the list of positions to check relative to the biggest number, and what to % them by
+ys = [] # [(relative_index, bus_id)]
+
+full_buses = xs[1].split(',')
+
+for i, bus_id in enumerate(full_buses):
+    if bus_id == "x":
+        full_buses[i] = 0
+    else:
+        full_buses[i] = int(bus_id)
+
+print(full_buses)
+biggest_bus_index = full_buses.index(max(full_buses))
+print(biggest_bus_index)
+
+for i, bus_id in enumerate(full_buses):
+    ys.append((i-biggest_bus_index, bus_id))
+
+time = 0
+missing = False
+found_count = 0
+
+highest_found_count = (0,0)
+
+incrementable = full_buses[biggest_bus_index]
+last_time = 0
+while True:
+    # print(time)
+    for y in ys:
+        y_time = time + y[0]
+
+        try:
+            if y_time < 0:
+                missing = True
+                break
+            elif y_time % y[1] != 0:
+                # import pdb; pdb.set_trace()
+                missing = True
+                break
+            else:
+                found_count+=1
+        except ZeroDivisionError:
+            found_count+= 1
+            # it's an inactive route
+            # as long as it's greater than zero we're good
+            # print(e, " - ", time + y[0])
+    if missing==True:
+        # iterate and keep on
+
+        print("Found %s at %s" % (found_count, time))
+        if found_count > 0:
+            # import pdb; pdb.set_trace()
+            if highest_found_count[0] == found_count:
+                # we've seen it before
+                # let's make sure we're setting the right incrementable
+
+                gap = time - highest_found_count[1]
+                # import pdb; pdb.set_trace()
+                if gap > incrementable:
+                    incrementable = gap
+                    highest_found_count = (found_count, time)
+                    print("Seen before but new gap!", found_count, "Incrementable is now ", incrementable)
+                else:
+                    highest_found_count = (found_count, time)
+            elif found_count > highest_found_count[0]:
+                # we haven't seen this, but it's higher
+                # don't increase the gap, just set it to be higher
+                highest_found_count = (found_count, time)
+
+        last_time = time
+        time += incrementable
+        missing = False
+        found_count = 0
+
+    else:
+        print("Ding ding: ", time + ys[0][0])
+        break
